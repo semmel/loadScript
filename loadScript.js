@@ -11,7 +11,7 @@
 	var
 		loadScript,
 		funcName = 'loadScript',
-		VERSION = '0.1.4',
+		VERSION = '0.1.5',
 		had = Object.prototype.hasOwnProperty.call(win, funcName),
 		previous = win[funcName],
 		loading = {},
@@ -59,13 +59,39 @@
 	}
 
 	// Here is the loadScript() function itself.
-	loadScript = win[funcName] = function (requestURL, callback) {
+	loadScript = win[funcName] = function (requestURL , /*optional*/ attributes_, /*optional*/callback_)
+	{
 		var
 			el,
 			url = rewrite(requestURL),
 			needToLoad = !loading[url],
-			q = loading[url] = loading[url] || []
+			q = loading[url] = loading[url] || [],
+			attributes,
+			callback
 		;
+
+		if (arguments.length > 1)
+		{
+			if (typeof attributes_ == "object")
+			{
+				attributes = attributes_;
+
+				if (arguments.length > 2)
+				{
+					if (typeof callback_ == "function")
+					{
+						callback = callback_;
+					}
+				}
+			}
+			else if (typeof attributes_ == "function")
+			{
+				callback = attributes_;
+
+				attributes = undefined;
+			}
+		}
+
 		function doCallback() {
 			if (callback) {
 				callback();
@@ -94,7 +120,23 @@
 			if (url !== requestURL) {
 				el.setAttribute('data-requested', requestURL);
 			}
+
+			if (attributes)
+			{
+				var key;
+				for (key in attributes)
+				{
+					if (!attributes.hasOwnProperty(key) || (typeof attributes[key] != "string"))
+					{
+						continue;
+					}
+
+					el.setAttribute(key, attributes[key]);
+				}
+			}
+
 			el.src = url;
+
 			doc.getElementsByTagName('head')[0].appendChild(el);
 		}
 	};
