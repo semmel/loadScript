@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Loadscript : Small JS script loader utility; allows client-side script substitution." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Loadscript</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/semmel/loadScript">View on GitHub</a>
+
+          <h1 id="project_title">Loadscript</h1>
+          <h2 id="project_tagline">Small JS script loader utility; allows client-side script substitution.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/semmel/loadScript/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/semmel/loadScript/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h1>
+
+<p><code>loadScript()</code> is a global function for performing asynchronous script loads.</p>
+
+<p><a href="http://semmel.github.io/loadScript/test.html">Run unit tests.</a></p>
+
+<h1>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h1>
+
+<ul>
+<li>Tiny! (1kB minified)</li>
+<li>Supports .noConflict()</li>
+<li>For developers, allows you to rewrite script URLs based on localStorage
+string substitution rules, making it easy to develop a new version of your
+JS products, even working off of a production site!</li>
+<li>success and failure callback</li>
+</ul><h1>
+<a name="how-does-that-work-exactly" class="anchor" href="#how-does-that-work-exactly"><span class="octicon octicon-link"></span></a>How does that work, exactly?</h1>
+
+<p>Include loadScript.js via a script tag:</p>
+
+<div class="highlight highlight-html"><pre>    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"loadScript.js"</span> <span class="na">type=</span><span class="s">"text/javascript"</span><span class="nt">&gt;&lt;/script&gt;</span>
+</pre></div>
+
+<p>If you want to make use of the URL substitution feature, do this:</p>
+
+<div class="highlight highlight-javascript"><pre>    <span class="nx">loadScript</span><span class="p">.</span><span class="nx">key</span> <span class="o">=</span> <span class="s1">'my_localStorage_key'</span><span class="p">;</span>
+</pre></div>
+
+<p>Actually loading a script is easy:</p>
+
+<div class="highlight highlight-javascript"><pre>    <span class="kd">var</span> <span class="nx">jqURL</span> <span class="o">=</span> <span class="s1">'//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js'</span><span class="p">;</span>
+    <span class="nx">loadScript</span><span class="p">(</span><span class="nx">jsURL</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// jQuery is now loaded!</span>
+    <span class="p">});</span>
+</pre></div>
+
+<p>Now if you, as a developer, want to test out your production site with the
+non-minified jQuery source for debugging purposes, just use the browser's dev
+tools to set a localStorage value:</p>
+
+<div class="highlight highlight-javascript"><pre>    <span class="nx">localStorage</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span><span class="s1">'my_localStorage_key'</span><span class="p">,</span> <span class="s1">'[[".min",""]]'</span><span class="p">);</span>
+</pre></div>
+
+<p>Now when you refresh the page, loadScript() will perform a string substitution
+on your URLs to remove the '.min' substring.  This will only affect you, not
+other users of the site.</p>
+
+<p>The localStorage value must be a valid JSON stringified array of arrays, where
+each inner array has exactly two elements: <code>[&lt;searchtext&gt;,&lt;replacetext&gt;]</code></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Loadscript maintained by <a href="https://github.com/semmel">semmel</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
