@@ -3,7 +3,7 @@ Overview
 
 `loadScript()` is a global function for performing asynchronous script loads.
 
-[Run unit tests.](http://zynga.github.io/loadScript/test.html)
+[Run unit tests.](http://semmel.github.io/loadScript/test.html)
 
 Features
 ========
@@ -13,6 +13,7 @@ Features
  * For developers, allows you to rewrite script URLs based on localStorage
    string substitution rules, making it easy to develop a new version of your
    JS products, even working off of a production site!
+ * Success and failure callback
 
 
 How does that work, exactly?
