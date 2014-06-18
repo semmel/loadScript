@@ -11,7 +11,7 @@
 	var
 		loadScript,
 		funcName = 'loadScript',
-		VERSION = '0.1.4',
+		VERSION = '0.1.6',
 		had = Object.prototype.hasOwnProperty.call(win, funcName),
 		previous = win[funcName],
 		loading = {},
@@ -59,43 +59,135 @@
 	}
 
 	// Here is the loadScript() function itself.
-	loadScript = win[funcName] = function (requestURL, callback) {
+	loadScript = win[funcName] = function (requestURL , /*optional*/ attributes_, /*optional*/callback_)
+	{
 		var
 			el,
 			url = rewrite(requestURL),
 			needToLoad = !loading[url],
-			q = loading[url] = loading[url] || []
+			q = loading[url] = loading[url] || [],
+			attributes,
+			callback
 		;
-		function doCallback() {
-			if (callback) {
-				callback();
+
+		if (arguments.length > 1)
+		{
+			if (typeof attributes_ == "object")
+			{
+				attributes = attributes_;
+
+				if (arguments.length > 2)
+				{
+					if (typeof callback_ == "function")
+					{
+						callback = callback_;
 			}
 		}
-		if (loaded[url]) {
-			doCallback();
+			}
+			else if (typeof attributes_ == "function")
+			{
+				callback = attributes_;
+
+				attributes = undefined;
+			}
+		}
+
+		if (loaded[url])
+		{
+			if (typeof callback == "function")
+			{
+				callback();
+			}
+
 			return;
 		}
-		q.push(doCallback);
-		function onLoad() {
-			loaded[url] = 1;
+
+		if (typeof callback == "function")
+		{
+			q.push(callback);
+		}
+
+		function onLoad()
+		{
+			loaded[url] = true;
 			while (q.length) {
 				q.shift()();
 			}
 		}
-		if (needToLoad) {
+
+		function onError()
+		{
+			loaded[url] = false;
+			while (q.length) {
+				q.shift()(new Error("Network or File Not Found error (\"" + url + "\")"));
+			}
+		}
+
+		if (needToLoad)
+		{
 			el = doc.createElement('script');
 			el.type = 'text/javascript';
 			el.charset = 'utf-8';
-			if (el.addEventListener) {
+			el.src = url;
+
+			if (el.addEventListener) // IE9+ & others
+			{
 				el.addEventListener('load', onLoad, false);
-			} else { // IE
-				el.attachEvent('onreadystatechange', onLoad);
+				el.addEventListener('error', onError, false);
+
+				doc.getElementsByTagName('head')[0].appendChild(el);
 			}
-			if (url !== requestURL) {
+			else
+			{ // IE8
+				el.attachEvent('onreadystatechange', function()
+					{
+						if (el.readyState == "complete")
+						{
+							doc.getElementsByTagName('head')[0].appendChild(el);
+
+							onLoad();
+			}
+						else if (el.readyState == "loaded")
+						{
+							// hack: calling 'children' property changes node's readyState from 'loaded' to complete
+							// (if script was loaded normally) and calls the onreadystate event handler again
+							// or to 'loading' - if error detected
+							//noinspection BadExpressionStatementJS
+							el.children;
+
+							if (el.readyState == 'loading') // error detected
+							{
+			doc.getElementsByTagName('head')[0].appendChild(el);
+
+								onError();
+							}
+						}
+					}
+				);
+			}
+
+			if (url !== requestURL)
+			{
 				el.setAttribute('data-requested', requestURL);
 			}
-			el.src = url;
-			doc.getElementsByTagName('head')[0].appendChild(el);
+
+			if (attributes)
+			{
+				var key;
+				for (key in attributes)
+				{
+					if (!attributes.hasOwnProperty(key) || (typeof attributes[key] != "string"))
+					{
+						continue;
+					}
+
+					el.setAttribute(key, attributes[key]);
+				}
+			}
+
+
+
+
 		}
 	};
 
