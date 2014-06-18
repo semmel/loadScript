@@ -92,32 +92,82 @@
 			}
 		}
 
-		function doCallback() {
-			if (callback) {
+		if (loaded[url])
+		{
+			if (typeof callback == "function")
+			{
 				callback();
 			}
-		}
-		if (loaded[url]) {
-			doCallback();
+
 			return;
 		}
-		q.push(doCallback);
-		function onLoad() {
-			loaded[url] = 1;
+
+		if (typeof callback == "function")
+		{
+			q.push(callback);
+		}
+
+		function onLoad()
+		{
+			loaded[url] = true;
 			while (q.length) {
 				q.shift()();
 			}
 		}
-		if (needToLoad) {
+
+		function onError()
+		{
+			loaded[url] = false;
+			while (q.length) {
+				q.shift()(new Error("Network or File Not Found error (\"" + url + "\")"));
+			}
+		}
+
+		if (needToLoad)
+		{
 			el = doc.createElement('script');
 			el.type = 'text/javascript';
 			el.charset = 'utf-8';
-			if (el.addEventListener) {
+			el.src = url;
+
+			if (el.addEventListener) // IE9+ & others
+			{
 				el.addEventListener('load', onLoad, false);
-			} else { // IE
-				el.attachEvent('onreadystatechange', onLoad);
+				el.addEventListener('error', onError, false);
+
+				doc.getElementsByTagName('head')[0].appendChild(el);
 			}
-			if (url !== requestURL) {
+			else
+			{ // IE8
+				el.attachEvent('onreadystatechange', function()
+					{
+						if (el.readyState == "complete")
+						{
+							doc.getElementsByTagName('head')[0].appendChild(el);
+
+							onLoad();
+						}
+						else if (el.readyState == "loaded")
+						{
+							// hack: calling 'children' property changes node's readyState from 'loaded' to complete
+							// (if script was loaded normally) and calls the onreadystate event handler again
+							// or to 'loading' - if error detected
+							//noinspection BadExpressionStatementJS
+							el.children;
+
+							if (el.readyState == 'loading') // error detected
+							{
+								doc.getElementsByTagName('head')[0].appendChild(el);
+
+								onError();
+							}
+						}
+					}
+				);
+			}
+
+			if (url !== requestURL)
+			{
 				el.setAttribute('data-requested', requestURL);
 			}
 
@@ -135,9 +185,9 @@
 				}
 			}
 
-			el.src = url;
 
-			doc.getElementsByTagName('head')[0].appendChild(el);
+
+
 		}
 	};
 
