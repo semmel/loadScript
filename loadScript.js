@@ -11,7 +11,7 @@
 	var
 		loadScript,
 		funcName = 'loadScript',
-		VERSION = '0.1.5',
+		VERSION = '0.1.6',
 		had = Object.prototype.hasOwnProperty.call(win, funcName),
 		previous = win[funcName],
 		loading = {},
